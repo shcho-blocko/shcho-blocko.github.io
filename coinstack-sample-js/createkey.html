@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script type="text/javascript" src="../inc/coinstack-1.1.10.min.js"></script>
+	<script type="text/javascript" src="../inc/coinstack-ksm.js"></script>
+    <script type="text/javascript" src="../inc/crypto.js"></script>
+    <script type="text/javascript" src="../inc/download-1.4.6.js"></script>
+    <style>
+	dl > dt {
+		font-weight: bold;
+	}
+    </style>
+</head>
+<body>
+    <div>
+    	<dl>
+    		<dt>pkey</dt>
+    		<dd id="ID_PKEY"></dd>
+    		<dt>addr</dt>
+    		<dd id="ID_ADDR"></dd>
+    		<dt>encrypted</dt>
+    		<dd id="ID_ENCD"></dd>
+    		<dt>decrypted</dt>
+    		<dd id="ID_DECD"></dd>
+    	</dl>
+    </div>
+    <hr/>
+	<div>
+		<p><button id="ID_SAVELINK" onClick="javascript:saveFile();">save as file</button></p>
+	</div>
+    <hr/>
+    <div>
+        <form name="LOADER" id="ID_LOADER">
+            <input type="file" id="ID_FILE_SELECT" />
+            <input type="button" onClick="javascript:loadFile(this);" value="load from file" />
+        </form>
+        <p id="ID_LOAD_MSG"></p>
+    </div>
+	<hr/>
+	<div>
+		<dl>
+			<dt>reference</dt>
+			<dd><a href="https://github.com/rndme/download">download.js - file downloading using client-side javascript</a></dd>
+		</dl>
+	</div>
+	<script type="text/javascript">
+	    var process = function(pkey, passphrase) {
+			console.log("## process");
+
+			// derive address
+		    var addr = CoinStack.ECKey.deriveAddress(pkey);
+		    console.log("pkey", pkey);
+		    console.log("addr", addr);
+		    
+		    // encrypt and decrypt
+		    var encrypted = CryptoJS.AES.encrypt(pkey, passphrase);
+		    var encryptedStr = encrypted.toString();
+		    console.log("encryptedStr", encryptedStr);
+		    var decrypted = CryptoJS.AES.decrypt(encryptedStr, passphrase);
+		    var decryptedStr = decrypted.toString(CryptoJS.enc.Utf8);
+		    console.log("encryptedStr", decryptedStr);
+
+			// save to localStorage
+			window.localStorage.encryptedStr = encryptedStr;
+		    
+		    // display
+		    document.getElementById("ID_PKEY").innerHTML = pkey;
+		    document.getElementById("ID_ADDR").innerHTML = addr;
+		    document.getElementById("ID_ENCD").innerHTML = encryptedStr;
+		    document.getElementById("ID_DECD").innerHTML = decryptedStr;
+	    };
+		var saveFile = function() {
+			console.log("## saveFile");
+			var encryptedStr = window.localStorage.encryptedStr;
+			console.log("encryptedStr", encryptedStr);
+			download(encryptedStr, "save.key", "application/octet-stream");
+		};
+		var loadFile = function(e) {
+			console.log("## loadFile");
+	    	document.getElementById("ID_LOAD_MSG").innerHTML = "Loading ...";
+	    	var files = document.getElementById("ID_FILE_SELECT").files;
+	    	for (var i=0, f; f=files[i]; i++) {
+				console.log("load file", f.name);
+				var fname = f.name;
+				var reader = new FileReader();
+				reader.onload = function(e) {
+					var data = e.target.result;
+					console.log("loadedData", data);
+					var decryptedFromFile = CryptoJS.AES.decrypt(data, passphrase);
+					var pkeyFromFile = decryptedFromFile.toString(CryptoJS.enc.Utf8);
+					console.log("pkeyFromFile", pkeyFromFile);
+					document.getElementById("ID_LOAD_MSG").innerHTML = "Load Completed: "+fname+", "+pkeyFromFile;
+					process(pkeyFromFile, passphrase);
+				};
+				reader.readAsText(f);
+			}
+		};
+	    
+		var passphrase = "12345!67890";
+		var pkey = CoinStack.ECKey.createKeyKSM(window);
+	    process(pkey, passphrase);
+    </script>
+	<script type="text/javascript">
+	</script>
+</body>
+</html>
