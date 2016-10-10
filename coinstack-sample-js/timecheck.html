@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="content-type" content='text/html; charset=utf-8'/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0" />
+<title>shcho-blocko</title>
+<script type="text/javascript" src="../inc/coinstack-1.1.10.min.js"></script>
+<script type="text/javascript" src="../inc/coinstack-ksm.js"></script>
+<script type="text/javascript" src="../inc/crypto.js"></script>
+<style type="text/css">
+dl > dt {
+	font-weight: bold;
+}
+dl#viewPanel > dd {
+	word-break: break-all;
+	font-family: fixed;
+}
+</style>
+</head>
+<body>
+    <div>
+    	<dl id="viewPanel">
+    		<dt>pkey</dt>
+    		<dd id="ID_PKEY"></dd>
+    		<dt>addr</dt>
+    		<dd id="ID_ADDR"></dd>
+    		<dt>encrypted</dt>
+    		<dd id="ID_ENCD"></dd>
+    		<dt>decrypted</dt>
+    		<dd id="ID_DECD"></dd>
+            <dt>signature</dt>
+            <dd id="ID_SIGN"></dd>
+    	</dl>
+    </div>
+	<hr/>
+    <div>
+		<dl>
+			<dt>logger</dt>
+			<dd>
+				<pre id="loggerPanel"></pre>
+			</dd>
+		</dl>
+	</div>
+	<script type="text/javascript">
+		var StopWatch = function() {
+			var strt = Date.now();
+			var prev = strt;
+			var time = function() {
+				var now = Date.now();
+				var res = now - strt;
+				return res;
+			};
+			var check = function() {
+				var now = Date.now();
+				var res = now - prev;
+				prev = now;
+				return res;
+			};
+			return {
+				start: function() { return strt; },
+				reset: function() { strt = Date.now(); },
+				time: time,
+				check: check,
+			};
+		};
+		var logger = {
+			logs: function() {
+				var buf = '';
+				if (arguments === undefined || arguments == null) {
+					buf = arguments;
+				}
+				else {
+					for (var x in arguments) {
+						buf += arguments[x] + ' ';
+					}
+				}
+				//console.log(buf);
+				var panel = document.getElementById('loggerPanel');
+				panel.innerHTML += '\n' + buf;
+			},
+		};
+	    
+		var sw = new StopWatch();
+		var passphrase = "12345!67890";
+		sw.reset();
+		var pkey = CoinStack.ECKey.createKey(window);
+		logger.logs('eckey.createKey', sw.check());
+
+        // derive address
+        sw.reset();
+        var addr = CoinStack.ECKey.deriveAddress(pkey);
+        console.log("pkey", pkey);
+        console.log("addr", addr);
+        logger.logs('eckey.deriveAddress', sw.check());
+        
+        // encrypt and decrypt
+        var options = { mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 };
+        var encrypted = CryptoJS.AES.encrypt(pkey, passphrase, options);
+        var encryptedStr = encrypted.toString();
+        logger.logs('crypto.aes.encrypt', sw.check());
+        console.log("encryptedStr", encryptedStr);
+        var decrypted = CryptoJS.AES.decrypt(encryptedStr, passphrase);
+        var decryptedStr = decrypted.toString(CryptoJS.enc.Utf8);
+        logger.logs('crypto.aes.decrypt', sw.check());
+        console.log("encryptedStr", decryptedStr);
+
+        // sign
+        var sign = CoinStack.ECDSA.signMessage(pkey, addr);
+        logger.logs('ecdsa.sign', sw.check());
+        console.log("ecdsa.sign", sign);
+        
+        // display
+        document.getElementById("ID_PKEY").innerHTML = pkey;
+        document.getElementById("ID_ADDR").innerHTML = addr;
+        document.getElementById("ID_ENCD").innerHTML = encryptedStr;
+        document.getElementById("ID_DECD").innerHTML = decryptedStr;
+        document.getElementById("ID_SIGN").innerHTML = sign;
+
+    </script>
+	<script type="text/javascript">
+	</script>
+</body>
+</html>
