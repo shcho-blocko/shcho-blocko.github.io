@@ -7,6 +7,6 @@ CoinStack.ECKey.createKeyKSM = function(window) {
     }
     console.log("createKeyFromHexSeed()");
     //return CoinStack.ECKey.createKeyFromHexSeed("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF");
-    var seed = CoinStack.Util.hashSha256(new String(Date.now()));
+    var seed = CoinStack.Util.hashSha256(Math.random()+''+Date.now());
     return CoinStack.ECKey.createKeyFromHexSeed(seed);
 }
