@@ -83,7 +83,7 @@ dl#viewPanel > dd {
 		var sw = new StopWatch();
 		var passphrase = "12345!67890";
 		sw.reset();
-		var pkey = CoinStack.ECKey.createKey(window);
+		var pkey = CoinStack.ECKey.createKeyKSM(window);
 		logger.logs('eckey.createKey', sw.check());
 
         // derive address
