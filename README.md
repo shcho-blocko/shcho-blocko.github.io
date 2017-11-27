@@ -1,3 +1,3 @@
-# shcho-blocko.github.io
+# shcho-blocko
 
 https://shcho-blocko.github.io/
