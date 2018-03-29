@@ -1,0 +1,14 @@
+io.blocko.coinstack
+io.blocko.coinstack.auth
+io.blocko.coinstack.backendadaptor
+io.blocko.coinstack.contract
+io.blocko.coinstack.exception
+io.blocko.coinstack.hsm
+io.blocko.coinstack.model
+io.blocko.coinstack.openassets
+io.blocko.coinstack.openassets.model
+io.blocko.coinstack.openassets.util
+io.blocko.coinstack.permission
+io.blocko.coinstack.permission.model
+io.blocko.coinstack.tx
+io.blocko.coinstack.util
